@@ -18,5 +18,12 @@
       "persist": true,
       "head_sampling_rate": 1
     }
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "my-data",
+      "database_id": "4416c842-3fc9-4a29-b0cd-67660b28fc47"
+    }
+  ]
 }

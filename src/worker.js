@@ -1,23 +1,53 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run "npm run dev" in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run "npm run deploy" to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
-
 export default {
-  async fetch(request, env, ctx) {
-    if (request.method !== "POST") {
-      return new Response("Método no permitido", { status: 405 });
-    }
+	async fetch(request, env, ctx) {
+		if (request.method !== 'POST') {
+			return new Response('Método no permitido', { status: 405 });
+		}
 
-    const data = await request.json();
+		const data = await request.json();
+		const url = new URL(request.url);
 
-    console.log(data)
+		if (url.pathname === '/expenses-log') {
+			const { amount, description, location } = data;
+			const date = new Date(data.date).getTime();
 
-    return new Response(data.name);
-  }
+			try {
+				const result = await env.DB.prepare(
+					'INSERT INTO expenses (id, created_at, date, amount, description, location) VALUES (?, ?, ?, ?, ?, ?)',
+				)
+					.bind(crypto.randomUUID(), new Date().getTime(), date, amount, description, location)
+					.run();
+				console.log(result);
+				return new Response(true, { status: 200 });
+			} catch (error) {
+				console.error(error);
+				return new Response(false, { status: 500 });
+			}
+		}
+
+		if (url.pathname === '/money-log') {
+			const date = new Date(data.date).getTime();
+			const moneyCash = Number(data.money_cash);
+			const moneyAccount = Number(data.money_account);
+			const totalMoney = moneyCash + moneyAccount;
+
+			console.log('moneyCash:', moneyCash);
+			console.log('moneyAccount:', moneyAccount);
+			console.log('totalMoney:', totalMoney);
+			try {
+				const result = await env.DB.prepare(
+					'INSERT INTO money_daily (id, created_at, date, money_cash, money_account, total_money) VALUES (?, ?, ?, ?, ?, ?)',
+				)
+					.bind(crypto.randomUUID(), new Date().getTime(), date, moneyCash, moneyAccount, totalMoney)
+					.run();
+				console.log(result);
+				return new Response(true, { status: 200 });
+			} catch (error) {
+				console.error(error);
+				return new Response(false, { status: 500 });
+			}
+		}
+
+		return new Response('OK', { status: 200 });
+	},
 };
