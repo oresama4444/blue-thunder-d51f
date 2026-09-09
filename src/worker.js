@@ -25,6 +25,21 @@ export default {
 			}
 		}
 
+		if (url.pathname === '/incomes-log') {
+			const { amount, description } = data;
+			const date = new Date(data.date).getTime();
+
+			try {
+				const result = await env.DB.prepare('INSERT INTO incomes (id, created_at, date, amount, description) VALUES (?, ?, ?, ?, ?)')
+					.bind(crypto.randomUUID(), new Date().getTime(), date, amount, description)
+					.run();
+
+				return new Response(true, { status: 200 });
+			} catch (error) {
+				return new Response(false, { status: 500 });
+			}
+		}
+
 		if (url.pathname === '/money-log') {
 			const date = new Date(data.date).getTime();
 			const moneyCash = Number(data.money_cash);
