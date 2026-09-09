@@ -17,10 +17,9 @@ export default {
 				)
 					.bind(crypto.randomUUID(), new Date().getTime(), date, amount, description, location)
 					.run();
-				console.log(result);
+
 				return new Response(true, { status: 200 });
 			} catch (error) {
-				console.error(error);
 				return new Response(false, { status: 500 });
 			}
 		}
@@ -46,19 +45,15 @@ export default {
 			const moneyAccount = Number(data.money_account);
 			const totalMoney = moneyCash + moneyAccount;
 
-			console.log('moneyCash:', moneyCash);
-			console.log('moneyAccount:', moneyAccount);
-			console.log('totalMoney:', totalMoney);
 			try {
 				const result = await env.DB.prepare(
 					'INSERT INTO money_daily (id, created_at, date, money_cash, money_account, total_money) VALUES (?, ?, ?, ?, ?, ?)',
 				)
 					.bind(crypto.randomUUID(), new Date().getTime(), date, moneyCash, moneyAccount, totalMoney)
 					.run();
-				console.log(result);
+
 				return new Response(true, { status: 200 });
 			} catch (error) {
-				console.error(error);
 				return new Response(false, { status: 500 });
 			}
 		}
